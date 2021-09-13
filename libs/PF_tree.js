@@ -58,7 +58,7 @@
 			$input.attr('value', data);
 		}
 		//manually trigger change event for hidden input
-		input.trigger('change');
+		$input.trigger('change');
 	};
 
 	TreeInput_proto.uncheck = function( data ) {
@@ -68,7 +68,7 @@
 		var data_string = this.values.join( this.delimiter );
 		$input.attr( 'value', data_string );
 		//manually trigger change event for hidden input
-		input.trigger('change');
+		$input.trigger('change');
 	};
 
 	TreeInput_proto.setCurValue = function () {
@@ -78,7 +78,7 @@
 			$input.attr( 'value', this.cur_value );
 			this.values = this.cur_value.split( this.delimiter );
 		        //manually trigger change event for hidden input
-		        input.trigger('change');
+		        $input.trigger('change');
 		}
 	};
 
