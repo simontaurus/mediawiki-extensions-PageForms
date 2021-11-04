@@ -120,6 +120,48 @@ class PFTree {
 		}
 	}
 
+        private function getDisplayTitle($title){
+		//TODO: Optimize, query all display titles at once
+		$titles = [];
+                $titles[] = Title::newFromText( $title, NS_CATEGORY  );
+                $titleTexts = [];
+		//$dbr = wfGetDB( DB_SLAVE );
+		//$displayTitle = $dbr->selectField(
+  		//	'page_props',
+  		//	'pp_value',
+  		//	array( 'pp_propname' => 'displaytitle', 'pp_page' => $title->getArticleId() ),
+  		//	__METHOD__
+		//);
+		
+                //$services = MediaWikiServices::getInstance();
+		//if ( method_exists( $services, 'getPageProps' ) ) {
+		//	// MW 1.36+
+		//	$pageProps = $services->getPageProps();
+		//} else {
+			$pageProps = PageProps::getInstance();
+		//}
+		$properties = $pageProps->getProperties( $titles, [ 'displaytitle', 'defaultsort' ] );
+		foreach ( $titles as $title ) {
+			if ( array_key_exists( $title->getArticleID(), $properties ) ) {
+				$titleprops = $properties[$title->getArticleID()];
+			} else {
+				$titleprops = [];
+			}
+
+			$titleText = $title->getPrefixedText();
+			if ( array_key_exists( 'displaytitle', $titleprops ) &&
+				trim( str_replace( '&#160;', '', strip_tags( $titleprops['displaytitle'] ) ) ) !== '' ) {
+				$titleText = htmlspecialchars_decode( $titleprops['displaytitle'] );
+                        }
+                        $titleTexts[] = $titleText;
+                        $sortKey = $titleText;
+			if ( array_key_exists( 'defaultsort', $titleprops ) ) {
+				$sortKey = $titleprops['defaultsort'];
+			}
+		}
+		return $titleTexts[0];
+        }
+
 	/**
 	 * This Function takes the Top Category name as a parameter, and generate
 	 * tree_array, which is used within the class to modify the data passed to JS.
@@ -131,6 +173,7 @@ class PFTree {
 		$this->populateChildren();
 
 		$this->tree_array[0]['text'] = $top_category;
+
 		if ( in_array( $top_category, $this->current_values ) ) {
 			$this->tree_array[0]['state']['selected'] = true;
 		}
@@ -147,6 +190,13 @@ class PFTree {
 		if ( $hideroot ) {
 			$this->tree_array = $this->tree_array[0]['children'];
 		}
+
+                global $wgPageFormsUseDisplayTitle;
+                if ( $wgPageFormsUseDisplayTitle ) {
+                        $this->tree_array[0]['id'] = $this->tree_array[0]['text'];
+			$this->tree_array[0]['text'] = self::getDisplayTitle( $top_category );
+		}
+
 	}
 
 	/**
@@ -178,6 +228,13 @@ class PFTree {
 			if ( $is_selected ) {
 				$newChild['state']['selected'] = true;
 			}
+
+	                global $wgPageFormsUseDisplayTitle;
+        	        if ( $wgPageFormsUseDisplayTitle ) {
+                	        $newChild['id'] = $newChild['text'];
+                       		$newChild['text'] = self::getDisplayTitle( $newChild['text'] );
+                	}
+
 			$newChildren[] = $newChild;
 		}
 		return $newChildren;
@@ -243,6 +300,7 @@ class PFTree {
 
 		foreach ( $res as $row ) {
 			$t = Title::newFromRow( $row );
+
 			if ( $t->getNamespace() == NS_CATEGORY ) {
 				$subcats[] = $t->getText();
 			}

@@ -46,25 +46,25 @@
 		return options;
 	};
 
-	TreeInput_proto.check = function( data ) {
+	TreeInput_proto.check = function( id, text ) {
 		var $input = $(this.element).next('input.PFTree_data');
 
 		if ( this.multiple ) {
-			this.values.push( data );
+			this.values.push( id );
 			var data_string = this.values.join( this.delimiter );
 			$input.attr( 'value', data_string );
 		} else {
-			this.values.push( data );
-			$input.attr('value', data);
+			this.values.push( id );
+			$input.attr('value', id);
 		}
 		//manually trigger change event for hidden input
 		$input.trigger('change');
 	};
 
-	TreeInput_proto.uncheck = function( data ) {
+	TreeInput_proto.uncheck = function( id, text ) {
 		var $input = $( this.element ).next( 'input.PFTree_data' );
 
-		this.values.splice( this.values.indexOf( data ), 1 );
+		this.values.splice( this.values.indexOf( id ), 1 );
 		var data_string = this.values.join( this.delimiter );
 		$input.attr( 'value', data_string );
 		//manually trigger change event for hidden input
@@ -94,10 +94,10 @@ $.fn.extend({
 		$(this).jstree(options);
 
 		$(this).bind('select_node.jstree', function (evt, data) {
-			tree.check(data.node.text);
+			tree.check(data.node.id, data.node.text);
 		});
 		$(this).bind('deselect_node.jstree', function (evt, data) {
-			tree.uncheck(data.node.text);
+			tree.uncheck(data.node.id, data.node.text);
 		});
 
 		tree.setCurValue();
