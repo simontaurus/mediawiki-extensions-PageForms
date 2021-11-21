@@ -120,7 +120,7 @@ class PFTree {
 		}
 	}
 
-        private function getDisplayTitle($title){
+        private static function getDisplayTitle($title){
 		//TODO: Optimize, query all display titles at once
 		$titles = [];
                 $titles[] = Title::newFromText( $title, NS_CATEGORY  );
