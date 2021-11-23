@@ -120,7 +120,7 @@ class PFTree {
 		}
 	}
 
-        private function getDisplayTitle($title){
+        private static function getDisplayTitle($title){
 		//TODO: Optimize, query all display titles at once
 		$titles = [];
                 $titles[] = Title::newFromText( $title, NS_CATEGORY  );
@@ -241,10 +241,12 @@ class PFTree {
 	}
 
 	private static function getCurValues( $tree ) {
+                global $wgPageFormsUseDisplayTitle;
 		$cur_values = [];
 		foreach ( $tree as $node ) {
 			if ( isset( $node['state']['selected'] ) && $node['state']['selected'] ) {
-				$cur_values[] = $node['text'];
+                                if ( $wgPageFormsUseDisplayTitle ) $cur_values[] = $node['id'];
+                                else $cur_values[] = $node['text'];
 			}
 			if ( isset( $node['children'] ) ) {
 				$children = self::getCurValues( $node['children'] );
