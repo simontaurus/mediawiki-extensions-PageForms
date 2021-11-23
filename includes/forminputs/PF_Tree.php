@@ -174,6 +174,12 @@ class PFTree {
 
 		$this->tree_array[0]['text'] = $top_category;
 
+                global $wgPageFormsUseDisplayTitle;
+                if ( $wgPageFormsUseDisplayTitle ) {
+                        $this->tree_array[0]['id'] = $this->tree_array[0]['text'];
+                        $this->tree_array[0]['text'] = self::getDisplayTitle( $top_category );
+                }
+
 		if ( in_array( $top_category, $this->current_values ) ) {
 			$this->tree_array[0]['state']['selected'] = true;
 		}
@@ -190,13 +196,6 @@ class PFTree {
 		if ( $hideroot ) {
 			$this->tree_array = $this->tree_array[0]['children'];
 		}
-
-                global $wgPageFormsUseDisplayTitle;
-                if ( $wgPageFormsUseDisplayTitle ) {
-                        $this->tree_array[0]['id'] = $this->tree_array[0]['text'];
-			$this->tree_array[0]['text'] = self::getDisplayTitle( $top_category );
-		}
-
 	}
 
 	/**
