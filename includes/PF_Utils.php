@@ -7,22 +7,20 @@
  * @ingroup PF
  */
 
+use MediaWiki\Linker\LinkRenderer;
+use MediaWiki\Linker\LinkTarget;
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Revision\RevisionRecord;
 
 class PFUtils {
+
 	/**
-	 * Get a content language (old $wgContLang) object. For MW < 1.32,
-	 * return the global. For all others, use MediaWikiServices.
+	 * Get a content language object.
 	 *
 	 * @return Language
 	 */
 	public static function getContLang() {
-		if ( method_exists( "MediaWiki\\MediaWikiServices", "getContentLanguage" ) ) {
-			return MediaWikiServices::getInstance()->getContentLanguage();
-		} else {
-			global $wgContLang;
-			return $wgContLang;
-		}
+		return MediaWikiServices::getInstance()->getContentLanguage();
 	}
 
 	public static function getSMWContLang() {
@@ -93,7 +91,7 @@ class PFUtils {
 		if ( $namespace !== '' ) {
 			$namespace .= ':';
 		}
-		if ( MWNamespace::isCapitalized( $title->getNamespace() ) ) {
+		if ( self::isCapitalized( $title->getNamespace() ) ) {
 			return $namespace . self::getContLang()->ucfirst( $title->getPartialURL() );
 		} else {
 			return $namespace . $title->getPartialURL();
@@ -111,7 +109,7 @@ class PFUtils {
 		if ( $namespace !== '' ) {
 			$namespace .= ':';
 		}
-		if ( MWNamespace::isCapitalized( $title->getNamespace() ) ) {
+		if ( self::isCapitalized( $title->getNamespace() ) ) {
 			return $namespace . self::getContLang()->ucfirst( $title->getText() );
 		} else {
 			return $namespace . $title->getText();
@@ -121,27 +119,28 @@ class PFUtils {
 	/**
 	 * Gets the text contents of a page with the passed-in Title object.
 	 * @param Title $title
+	 * @param int $audience
 	 * @return string|null
 	 */
-	public static function getPageText( $title ) {
+	public static function getPageText( $title, $audience = RevisionRecord::FOR_PUBLIC ) {
 		$wikiPage = new WikiPage( $title );
-		$content = $wikiPage->getContent();
-		if ( $content !== null ) {
-			return $content->getNativeData();
+		$content = $wikiPage->getContent( $audience );
+		if ( $content instanceof TextContent ) {
+			// Since MW 1.33
+			if ( method_exists( $content, 'getText' ) ) {
+				return $content->getText();
+			} else {
+				return $content->getNativeData();
+			}
 		} else {
 			return null;
 		}
 	}
 
 	public static function getSpecialPage( $pageName ) {
-		if ( class_exists( 'MediaWiki\Special\SpecialPageFactory' ) ) {
-			// MW 1.32+
-			return MediaWikiServices::getInstance()
-				->getSpecialPageFactory()
-				->getPage( $pageName );
-		} else {
-			return SpecialPageFactory::getPage( $pageName );
-		}
+		return MediaWikiServices::getInstance()
+			->getSpecialPageFactory()
+			->getPage( $pageName );
 	}
 
 	/**
@@ -166,7 +165,8 @@ class PFUtils {
 	public static function linkText( $namespace, $name, $text = null ) {
 		$title = Title::makeTitleSafe( $namespace, $name );
 		if ( $title === null ) {
-			return $name; // TODO maybe report an error here?
+			// TODO maybe report an error here?
+			return $name;
 		}
 		if ( $text === null ) {
 			return '[[:' . $title->getPrefixedText() . '|' . $name . ']]';
@@ -176,19 +176,15 @@ class PFUtils {
 	}
 
 	/**
-	 * Prints the mini-form contained at the bottom of various pages, that
-	 * allows pages to spoof a normal edit page, that can preview, save,
-	 * etc.
+	 * Returns a hidden mini-form to be printed at the bottom of various helper
+	 * forms, like Special:CreateForm, so that the main form can either save or
+	 * preview the resulting page.
+	 *
 	 * @param string $title
 	 * @param string $page_contents
 	 * @param string $edit_summary
 	 * @param bool $is_save
-	 * @param bool $is_preview
-	 * @param bool $is_diff
-	 * @param bool $is_minor_edit
-	 * @param bool $watch_this
-	 * @param string $start_time
-	 * @param string $edit_time
+	 * @param User $user
 	 * @return string
 	 */
 	public static function printRedirectForm(
@@ -196,21 +192,14 @@ class PFUtils {
 		$page_contents,
 		$edit_summary,
 		$is_save,
-		$is_preview,
-		$is_diff,
-		$is_minor_edit,
-		$watch_this,
-		$start_time,
-		$edit_time
+		$user
 	) {
-		global $wgUser, $wgPageFormsScriptPath;
+		global $wgPageFormsScriptPath;
 
 		if ( $is_save ) {
 			$action = "wpSave";
-		} elseif ( $is_preview ) {
+		} else {
 			$action = "wpPreview";
-		} else { // $is_diff
-			$action = "wpDiff";
 		}
 
 		$text = <<<END
@@ -220,32 +209,22 @@ END;
 		$form_body = Html::hidden( 'wpTextbox1', $page_contents );
 		$form_body .= Html::hidden( 'wpUnicodeCheck', 'ℳ𝒲♥𝓊𝓃𝒾𝒸ℴ𝒹ℯ' );
 		$form_body .= Html::hidden( 'wpSummary', $edit_summary );
-		$form_body .= Html::hidden( 'wpStarttime', $start_time );
-		$form_body .= Html::hidden( 'wpEdittime', $edit_time );
-		// @TODO - add this in at some point. For now, most of these
-		// fields are not getting used anyway.
+		// @TODO - add this in at some point.
 		//$form_body .= Html::hidden( 'editRevId', $edit_rev_id );
 
-		if ( method_exists( $wgUser, 'isRegistered' ) ) {
+		if ( method_exists( $user, 'isRegistered' ) ) {
 			// MW 1.34+
-			$userIsRegistered = $wgUser->isRegistered();
+			$userIsRegistered = $user->isRegistered();
 		} else {
-			$userIsRegistered = $wgUser->isLoggedIn();
+			$userIsRegistered = $user->isLoggedIn();
 		}
 		if ( $userIsRegistered ) {
-			$edit_token = $wgUser->getEditToken();
+			$edit_token = $user->getEditToken();
 		} else {
 			$edit_token = \MediaWiki\Session\Token::SUFFIX;
 		}
 		$form_body .= Html::hidden( 'wpEditToken', $edit_token );
 		$form_body .= Html::hidden( $action, null );
-
-		if ( $is_minor_edit ) {
-			$form_body .= Html::hidden( 'wpMinoredit', null );
-		}
-		if ( $watch_this ) {
-			$form_body .= Html::hidden( 'wpWatchthis', null );
-		}
 
 		$form_body .= Html::hidden( 'wpUltimateParam', true );
 
@@ -268,7 +247,8 @@ END;
 	</script>
 
 END;
-		Hooks::run( 'PageForms::PrintRedirectForm', [ $is_save, $is_preview, $is_diff, &$text ] );
+		// @TODO - remove this hook? It seems useless.
+		Hooks::run( 'PageForms::PrintRedirectForm', [ $is_save, !$is_save, false, &$text ] );
 		return $text;
 	}
 
@@ -417,7 +397,8 @@ END;
 		// convert them back.
 		// regex adapted from:
 		// https://www.regular-expressions.info/recurse.html
-		$pattern = '/{{(?>[^{}]|(?R))*?}}/'; // needed to fix highlighting - <?
+		$pattern = '/{{(?>[^{}]|(?R))*?}}/';
+		// needed to fix highlighting - <?
 		$str = preg_replace_callback( $pattern, static function ( $match ) {
 			$hasPipe = strpos( $match[0], '|' );
 			return $hasPipe ? str_replace( "|", "\1", $match[0] ) : $match[0];
@@ -442,7 +423,7 @@ END;
 	 * keys to arrays rather than overwriting the value in the first array with the duplicate
 	 * value in the second array, as array_merge does.
 	 *
-	 * array_merge_recursive_distinct does not change the datatypes of the values in the arrays.
+	 * arrayMergeRecursiveDistinct() does not change the datatypes of the values in the arrays.
 	 * Matching keys' values in the second array overwrite those in the first array.
 	 *
 	 * Parameters are passed by reference, though only for performance reasons. They're not
@@ -456,12 +437,12 @@ END;
 	 * @author Daniel <daniel (at) danielsmedegaardbuus (dot) dk>
 	 * @author Gabriel Sobrinho <gabriel (dot) sobrinho (at) gmail (dot) com>
 	 */
-	public static function array_merge_recursive_distinct( array &$array1, array &$array2 ) {
+	public static function arrayMergeRecursiveDistinct( array &$array1, array &$array2 ) {
 		$merged = $array1;
 
 		foreach ( $array2 as $key => &$value ) {
 			if ( is_array( $value ) && isset( $merged[$key] ) && is_array( $merged[$key] ) ) {
-				$merged[$key] = self::array_merge_recursive_distinct( $merged[$key], $value );
+				$merged[$key] = self::arrayMergeRecursiveDistinct( $merged[$key], $value );
 			} else {
 				$merged[$key] = $value;
 			}
@@ -491,5 +472,27 @@ END;
 		}
 
 		return false;
+	}
+
+	public static function isCapitalized( $index ) {
+		if ( class_exists( NamespaceInfo::class ) ) {
+			// MW 1.34+
+			return MediaWikiServices::getInstance()
+				->getNamespaceInfo()
+				->isCapitalized( $index );
+		} else {
+			return MWNamespace::isCapitalized( $index );
+		}
+	}
+
+	public static function getCanonicalName( $index ) {
+		if ( class_exists( NamespaceInfo::class ) ) {
+			// MW 1.34+
+			return MediaWikiServices::getInstance()
+				->getNamespaceInfo()
+				->getCanonicalName( $index );
+		} else {
+			return MWNamespace::getCanonicalIndex( $index );
+		}
 	}
 }

@@ -11,15 +11,33 @@
 	'use strict';
 
 	var $sacButtons;
-	var form;
+	var $form;
+
 	function setChanged( event ) {
 		$sacButtons
-			.prop( 'disabled', false )
-			.addClass( 'pf-save_and_continue-changed' );
+			.addClass( 'pf-save_and_continue-changed' )
+			.addClass( 'oo-ui-widget-enabled' )
+			.removeClass( 'oo-ui-widget-disabled' );
+		$sacButtons.children('button').prop( 'disabled', false );
 
 		return true;
 	}
-
+	// Prevent multiple submission of form
+	jQuery.fn.preventDoubleSubmission = function() {
+		$( this ).on( 'submit', function(e) {
+			if ( $form.data('submitted') === true ) {
+				// Previously submitted - don't submit again
+				e.preventDefault();
+			} else {
+				// Mark it so that the next submit can be ignored
+				$form.data('submitted', true);
+				$( '.editButtons > .oo-ui-buttonElement' ).removeClass( 'oo-ui-widget-enabled' ).addClass( 'oo-ui-widget-disabled' );
+			}
+		});
+		// Keep chainability
+		return this;
+	};
+	$( '#pfForm' ).preventDoubleSubmission();
 	/**
 	 * Called when the server has sent the preview
 	 *
@@ -29,21 +47,21 @@
 	 */
 	var resultReceivedHandler = function handleResultReceived( result, textStatus, jqXHR ) {
 		// Store the target name
-		var $target = form.find( 'input[name="target"]' );
+		var $target = $form.find( 'input[name="target"]' );
 
 		if ( $target.length === 0 ) {
 			$target = $( '<input type="hidden" name="target">' );
-			form.append ( $target );
+			$form.append ( $target );
 		}
 
 		$target.attr( 'value', result.$target );
 
 		// Store the form name
-		$target = form.find( 'input[name="form"]' );
+		$target = $form.find( 'input[name="form"]' );
 
 		if ( $target.length === 0 ) {
 			$target = $( '<input type="hidden" name="form">' );
-			form.append ( $target );
+			$form.append ( $target );
 		}
 
 		$target.attr( 'value', result.form.title );
@@ -56,7 +74,6 @@
 	};
 
 	var resultReceivedErrorHandler = function handleError( jqXHR ){
-
 		var errors = $.parseJSON( jqXHR.responseText ).errors;
 
 		$sacButtons
@@ -80,7 +97,7 @@
 		}
 	};
 
-	function collectData( $form ) {
+	function collectData() {
 		var $summaryfield = jQuery( '#wpSummary', $form );
 		var saveAndContinueSummary = mw.msg( 'pf_formedit_saveandcontinue_summary', mw.msg( 'pf_formedit_saveandcontinueediting' ) );
 		var params;
@@ -156,7 +173,7 @@
 			var data = {
 				action: 'pfautoedit',
 				format: 'json',
-				query: collectData( $form ) // add form values to the data
+				query: collectData() // add form values to the data
 			};
 
 			data.query +=  '&wpSave=' + encodeURIComponent( $( event.currentTarget ).attr( 'value' ) );
@@ -191,12 +208,11 @@
 
 	if ( mw.config.get( 'wgAction' ) === 'formedit' || mw.config.get( 'wgCanonicalSpecialPageName' ) === 'FormEdit' ) {
 		$(function() { // Wait until DOM is loaded.
-			var $form = $( '#pfForm' );
-
+			$form = $( '#pfForm' );
 			$sacButtons = $( '.pf-save_and_continue', $form );
 			$sacButtons.click( handleSaveAndContinue );
 
-			$( $form )
+			$form
 			.on( 'keyup', 'input,select,textarea', function ( event ) {
 				if ( event.which < 32 ){
 					return true;
@@ -223,7 +239,7 @@
 									event.preventDefault();
 									mw.pageFormsActualizeVisualEditorFields( function () {
 										canSubmit = true;
-										$( button ).click();
+										$( button ).find("[type='submit']").click();
 									} );
 								}
 							} );

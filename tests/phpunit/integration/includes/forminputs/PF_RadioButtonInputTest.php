@@ -1,11 +1,27 @@
 <?php
 
+use OOUI\BlankTheme;
+
+if ( !class_exists( 'MediaWikiIntegrationTestCase' ) ) {
+	// MW pre-1.34
+	class_alias( 'MediaWikiTestCase', 'MediaWikiIntegrationTestCase' );
+}
+
 /**
  * @covers \PFRadioButtonInput
  *
  * @author Mark A. Hershberger <mah@nichework.com>
  */
-class PFRadioButtonInputTest extends MediaWikiTestCase {
+class PFRadioButtonInputTest extends MediaWikiIntegrationTestCase {
+
+	/**
+	 * Set up the environment
+	 */
+	protected function setUp(): void {
+		\OOUI\Theme::setSingleton( new BlankTheme() );
+
+		parent::setUp();
+	}
 
 	private function radioButtonFormat(
 		$name, $value, $label = null, $checked = null, $class = null,
@@ -358,8 +374,9 @@ class PFRadioButtonInputTest extends MediaWikiTestCase {
 				$form_definition = "{{{for template|TestTemplate123}}}\n{$setup['form_definition']}\n{{{end template}}}\n{{{standard input|save}}}";
 				list( $form_text, $page_text, $form_page_title, $generated_page_name )
 					= $wgPageFormsFormPrinter->formHTML(
-					$form_definition, true, false, null, null,
-						'TestStringForFormPageTitle', null
+						$form_definition, true, false, null, null,
+						'TestStringForFormPageTitle', null,
+						false, false, false, [], self::getTestUser()->getUser()
 					);
 			} else {
 				$this->markTestSkipped( "No form to test!" );

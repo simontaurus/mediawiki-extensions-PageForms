@@ -39,7 +39,8 @@ class PFAutoEdit {
 
 		// Parse parameters.
 		$params = func_get_args();
-		array_shift( $params ); // don't need the parser
+		// We don't need the parser.
+		array_shift( $params );
 
 		foreach ( $params as $param ) {
 			$elements = explode( '=', $param, 2 );
@@ -74,7 +75,7 @@ class PFAutoEdit {
 				case 'error text':
 					// do not parse ok text or error text yet. Will be parsed on api call
 					$arr = [ $key => $value ];
-					$inQueryArr = PFUtils::array_merge_recursive_distinct( $inQueryArr, $arr );
+					$inQueryArr = PFUtils::arrayMergeRecursiveDistinct( $inQueryArr, $arr );
 					break;
 				case 'tooltip':
 					$inTooltip = Sanitizer::decodeCharReferences( $value );
@@ -84,7 +85,7 @@ class PFAutoEdit {
 				case 'title':
 					$value = $parser->recursiveTagParse( $value );
 					$arr = [ $key => $value ];
-					$inQueryArr = PFUtils::array_merge_recursive_distinct( $inQueryArr, $arr );
+					$inQueryArr = PFUtils::arrayMergeRecursiveDistinct( $inQueryArr, $arr );
 
 					$targetTitle = Title::newFromText( $value );
 
@@ -107,7 +108,7 @@ class PFAutoEdit {
 				default:
 					$value = $parser->recursiveTagParse( $value );
 					$arr = [ $key => $value ];
-					$inQueryArr = PFUtils::array_merge_recursive_distinct( $inQueryArr, $arr );
+					$inQueryArr = PFUtils::arrayMergeRecursiveDistinct( $inQueryArr, $arr );
 			}
 		}
 
@@ -194,10 +195,11 @@ class PFAutoEdit {
 		// and do the same for -=
 		// This way, parse_str won't strip out the += and -=
 		$queryString = preg_replace( "/\[([^\]]+)\]\s*(\+|-)=/", "[$1$2]=", $queryString );
-		$queryString = str_replace( '+', '%2B', $queryString ); // prevent decoding + to space character
+		// Prevent "decoding" + into a space character
+		$queryString = str_replace( '+', '%2B', $queryString );
 
 		parse_str( $queryString, $arr );
 
-		return PFUtils::array_merge_recursive_distinct( $inQueryArr, $arr );
+		return PFUtils::arrayMergeRecursiveDistinct( $inQueryArr, $arr );
 	}
 }

@@ -348,20 +348,18 @@ $.fn.showIfChecked = function(partOfMultiple, initPage) {
 $.fn.showIfCheckedCheckbox = function( partOfMultiple, initPage ) {
 	var wgPageFormsShowOnSelect = mw.config.get( 'wgPageFormsShowOnSelect' ),
 		divIDs,
-		$instanceWrapperDiv,
+		$instanceWrapperDiv = null,
 		i;
-
-	if (partOfMultiple) {
-		divIDs = wgPageFormsShowOnSelect[this.attr("data-origID")];
-		$instanceWrapperDiv = this.closest(".multipleTemplateInstance");
-	} else {
-		divIDs = wgPageFormsShowOnSelect[this.attr("id")];
-		$instanceWrapperDiv = null;
+	if ( partOfMultiple ) {
+		divIDs = wgPageFormsShowOnSelect[this.attr( "data-origID" )];
+		$instanceWrapperDiv = this.closest( ".multipleTemplateInstance" );
 	}
-
+	if ( divIDs === undefined ) {
+		divIDs = wgPageFormsShowOnSelect[this.attr( "id" )];
+	}
 	for ( i = 0; i < divIDs.length; i++ ) {
 		var divID = divIDs[i];
-		if ($(this).find('[value]').is(":checked")) {
+		if ( $( this ).find( '[value]' ).is( ":checked" ) ) {
 			showDiv( divID, $instanceWrapperDiv, initPage );
 		} else {
 			hideDiv( divID, $instanceWrapperDiv, initPage );
@@ -1501,6 +1499,26 @@ $.fn.initializeJSElements = function( partOfMultiple ) {
 		tokens.apply($(this));
 	});
 
+	// Set the end date input to the value selected in start date
+	this.find("span.startDateInput").not(".hiddenByPF").find("input").last().blur( () => {
+		var endInput = $(this).find("span.endDateInput").not(".hiddenByPF");
+		var endYearInput = endInput.find(".yearInput");
+		var endMonthInput = endInput.find(".monthInput");
+		var endDayInput = endInput.find(".dayInput");
+
+		// Update end date value only if it is not set
+		if (endYearInput.val() == '' && endMonthInput.val() == '' && endDayInput.val() == ''){
+			var startInput = $(this);
+			var startYearVal = startInput.find(".yearInput").val();
+			var startMonthVal = startInput.find(".monthInput").val();
+			var startDayVal = startInput.find(".dayInput").val();
+
+			endYearInput.val(startYearVal);
+			endMonthInput.val(startMonthVal);
+			endDayInput.val(startDayVal);
+		}
+	});
+
 	fancyBoxSettings = {
 		toolbar : false,
 		smallBtn : true,
@@ -1578,7 +1596,7 @@ $.fn.initializeJSElements = function( partOfMultiple ) {
 		$(this).val(window.pfGenerateUUID());
 	});
 
-	this.find('[data-tooltip]').each( function() {
+	this.find('[data-tooltip]').not('.multipleTemplateStarter [data-tooltip]').each( function() {
 		// Even if it's within a <th>, display the text unbolded.
 		var tooltipText = '<p style="font-weight: normal;">' + $(this).attr('data-tooltip') + '</p>';
 		var tooltip = new OO.ui.PopupButtonWidget( {

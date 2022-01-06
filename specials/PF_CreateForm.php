@@ -174,7 +174,8 @@ class PFCreateForm extends SpecialPage {
 				foreach ( $fi['item']->getFields() as $j => $field ) {
 					$old_i = PFFormUtils::getChangedIndex( $templates, $new_template_loc, $deleted_template_loc );
 					foreach ( $req->getValues() as $key => $value ) {
-						if ( ( $pos = strpos( $key, '_' . $old_i . '_' . $j ) ) != false ) {
+						$pos = strpos( $key, '_' . $old_i . '_' . $j );
+						if ( $pos !== false ) {
 							$paramName = substr( $key, 0, $pos );
 							// Spaces got replaced by
 							// underlines in the query.
@@ -212,7 +213,8 @@ class PFCreateForm extends SpecialPage {
 				$section = $fi['item'];
 				$old_i = PFFormUtils::getChangedIndex( $sections, $new_section_loc, $deleted_section_loc );
 				foreach ( $req->getValues() as $key => $value ) {
-					if ( ( $pos = strpos( $key, '_section_' . $old_i ) ) != false ) {
+					$pos = strpos( $key, '_section_' . $old_i );
+					if ( $pos !== false ) {
 						$paramName = substr( $key, 0, $pos );
 						$paramName = str_replace( '_', ' ', $paramName );
 					} else {
@@ -263,7 +265,7 @@ class PFCreateForm extends SpecialPage {
 				$out->setArticleBodyOnly( true );
 				$title = Title::makeTitleSafe( PF_NS_FORM, $form->getFormName() );
 				$full_text = $form->createMarkup();
-				$text = PFUtils::printRedirectForm( $title, $full_text, "", $save_page, $preview_page, false, false, false, null, null );
+				$text = PFUtils::printRedirectForm( $title, $full_text, "", $save_page, $this->getUser() );
 				$out->addHTML( $text );
 				return;
 			}
@@ -454,7 +456,7 @@ END;
 			$previewAttrs['disabled'] = true;
 		}
 		$previewAttrs['label'] = $this->msg( 'preview' )->text();
-		$savepreviewAttrsttrs['useInputTag'] = true;
+		$previewAttrs['useInputTag'] = true;
 		$previewAttrs['name'] = 'wpPreview';
 		$previewAttrs['type'] = 'submit';
 		$previewAttrs['flags'] = [ 'progressive' ];
@@ -506,7 +508,8 @@ END;
 		$text .= Html::element( 'h2', [], $section_str );
 
 		foreach ( $this->getRequest()->getValues() as $key => $value ) {
-			if ( ( $pos = strpos( $key, '_section_' . $section_count ) ) != false ) {
+			$pos = strpos( $key, '_section_' . $section_count );
+			if ( $pos !== false ) {
 				$paramName = substr( $key, 0, $pos );
 				$paramName = str_replace( '_', ' ', $paramName );
 				$paramValues[$paramName] = $value;
@@ -680,7 +683,8 @@ END;
 END;
 		$paramValues = [];
 		foreach ( $this->getRequest()->getValues() as $key => $value ) {
-			if ( ( $pos = strpos( $key, '_' . $field_form_text ) ) != false ) {
+			$pos = strpos( $key, '_' . $field_form_text );
+			if ( $pos !== false ) {
 				$paramName = substr( $key, 0, $pos );
 				// Spaces got replaced by underlines in the
 				// query.
@@ -760,10 +764,8 @@ END;
 				'value' => $cur_value
 			] );
 		} elseif ( $type == 'enumeration' ) {
-			$optionAttrs;
 			$val = '';
 			foreach ( $param['values'] as $value ) {
-				array_push( $options, [ 'data' => $value, 'label' => $value ] );
 				$optionAttrs = [ 'value' => $value ];
 				if ( $cur_value == $value ) {
 					$val = $value;
@@ -776,8 +778,9 @@ END;
 			] );
 		} elseif ( $type == 'enum-list' ) {
 			$cur_values = explode( ',', $cur_value );
+			$text = '';
 			foreach ( $param['values'] as $val ) {
-				$checkboxHTML = new OOUI\CheckboxInputHtml( [
+				$checkboxHTML = new OOUI\CheckboxInputWidget( [
 					'name' => 'p[' . $paramName . '][' . $val . ']',
 					'selected' => in_array( $val, $cur_values ) ? true : false,
 					'value' => in_array( $val, $cur_values ) ? 'on' : ''

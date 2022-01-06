@@ -43,17 +43,17 @@ class PFRegExpInput extends PFFormInput {
 
 		// set regexp string
 		if ( array_key_exists( 'regexp', $this->mOtherArgs ) ) {
-			$this->mRegExp = str_replace( $orChar, '|', trim( $this->mOtherArgs['regexp'] ) );
+			$regExp = str_replace( $orChar, '|', trim( $this->mOtherArgs['regexp'] ) );
 			unset( $this->mOtherArgs['regexp'] );
 
 			// check for leading/trailing delimiter and remove it (else reset regexp)
-			if ( preg_match( "/^\/.*\/\$/", $this->mRegExp ) ) {
-				$this->mRegExp = substr( $this->mRegExp, 1, strlen( $this->mRegExp ) - 2 );
+			if ( preg_match( "/^\/.*\/\$/", $regExp ) ) {
+				$regExp = substr( $regExp, 1, strlen( $regExp ) - 2 );
 			} else {
-				$this->mRegExp = '.*';
+				$regExp = '.*';
 			}
 		} else {
-			$this->mRegExp = '.*';
+			$regExp = '.*';
 		}
 
 		// set inverse string
@@ -62,17 +62,17 @@ class PFRegExpInput extends PFFormInput {
 
 		// set failure message string
 		if ( array_key_exists( 'message', $this->mOtherArgs ) ) {
-			$this->mErrorMessage = trim( $this->mOtherArgs['message'] );
+			$errorMessage = trim( $this->mOtherArgs['message'] );
 			unset( $this->mOtherArgs['message'] );
 		} else {
-			$this->mErrorMessage = wfMessage( 'pf-regexp-wrongformat' )->text();
+			$errorMessage = wfMessage( 'pf-regexp-wrongformat' )->text();
 		}
 
 		// sanitize error message and regexp for JS
 		$jsFunctionData = [
-			'retext' => $this->mRegExp,
+			'retext' => $regExp,
 			'inverse' => $invertRegexp,
-			'message' => $this->mErrorMessage,
+			'message' => $errorMessage,
 		];
 
 		// Finally set name and parameters for the validation function
@@ -83,8 +83,9 @@ class PFRegExpInput extends PFFormInput {
 			$baseType = trim( $this->mOtherArgs['base type'] );
 			unset( $this->mOtherArgs['base type'] );
 
-			// if unknown set default base input type
-			if ( !array_key_exists( $baseType, $wgPageFormsFormPrinter->mInputTypeClasses ) ) {
+			// If base type is unknown, set it to 'text'.
+			$allInputTypes = $wgPageFormsFormPrinter->getAllInputTypes();
+			if ( !in_array( $baseType, $allInputTypes ) ) {
 				$baseType = 'text';
 			}
 		} else {
@@ -113,7 +114,8 @@ class PFRegExpInput extends PFFormInput {
 		}
 
 		// Create base input.
-		$this->mBaseInput = new $wgPageFormsFormPrinter->mInputTypeClasses[ $baseType ] (
+		$baseInputClass = $wgPageFormsFormPrinter->getInputType( $baseType );
+		$this->mBaseInput = new $baseInputClass(
 			$this->mInputNumber, $this->mCurrentValue, $this->mInputName, $this->mIsDisabled, $newOtherArgs
 		);
 	}

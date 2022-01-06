@@ -12,6 +12,8 @@
  * @author Yaron Koren
  */
 
+use MediaWiki\Revision\RevisionRecord;
+
 /**
  * @ingroup PFSpecialPages
  */
@@ -32,7 +34,6 @@ class PFMultiPageEdit extends QueryPage {
 		// Check permissions.
 		if ( !$this->getUser()->isAllowed( 'multipageedit' ) ) {
 			$this->displayRestrictionError();
-			return;
 		}
 
 		$this->mTemplate = $this->getRequest()->getText( 'template' );
@@ -78,17 +79,20 @@ class PFMultiPageEdit extends QueryPage {
 			$gridParamValues = [ 'name' => $templateField->getFieldName() ];
 			$gridParamValues['title'] = $templateField->getLabel();
 			$gridParamValues['type'] = 'text';
+			$possibleValues = $templateField->getPossibleValues();
+			$fieldType = $templateField->getFieldType();
+			$propertyType = $templateField->getPropertyType();
 			if ( $templateField->isList() ) {
 				$autocompletedatatype = '';
 				$autocompletesettings = '';
 				$gridParamValues['type'] = 'text';
-			} elseif ( !empty( $allowedValues = $templateField->getPossibleValues() ) ) {
-				$gridParamValues['values'] = $allowedValues;
+			} elseif ( !empty( $possibleValues ) ) {
+				$gridParamValues['values'] = $possibleValues;
 				if ( $templateField->isList() ) {
 					$gridParamValues['list'] = true;
 					$gridParamValues['delimiter'] = $templateField->getDelimiter();
 				}
-			} elseif ( !empty( $fieldType = $templateField->getFieldType() ) ) {
+			} elseif ( !empty( $fieldType ) ) {
 				if ( $fieldType == 'Date' ) {
 					$gridParamValues['type'] = 'date';
 				} elseif ( $fieldType == 'Datetime' ) {
@@ -110,7 +114,7 @@ class PFMultiPageEdit extends QueryPage {
 					$gridParamValues['autocompletesettings'] = $fullCargoField;
 					$gridParamValues['autocompletedatatype'] = 'cargo field';
 				}
-			} elseif ( !empty( $propertyType = $templateField->getPropertyType() ) ) {
+			} elseif ( !empty( $propertyType ) ) {
 				if ( $propertyType == '_dat' ) {
 					$gridParamValues['type'] = 'date';
 				} elseif ( $propertyType == '_boo' ) {
@@ -142,7 +146,7 @@ class PFMultiPageEdit extends QueryPage {
 			'height' => '500px',
 			'editMultiplePages' => true
 		];
-		$text .= Html::element( 'p', null, wfMessage( 'pf-spreadsheet-addrowinstructions' )->parse() );
+		$text .= Html::element( 'p', null, $this->msg( 'pf-spreadsheet-addrowinstructions' )->parse() );
 		$loadingImage = Html::element( 'img', [ 'src' => "$wgPageFormsScriptPath/skins/loading.gif" ] );
 		$loadingImageDiv = '<div class="loadingImage">' . $loadingImage . '</div>';
 		$text .= Html::rawElement( 'div', $templateDivAttrs, $loadingImageDiv );
@@ -209,8 +213,7 @@ class PFMultiPageEdit extends QueryPage {
 
 	function findTemplatesForForm( $formName ) {
 		$formTitle = Title::makeTitle( PF_NS_FORM, $formName );
-		$formWikiPage = WikiPage::factory( $formTitle );
-		$formContent = $formWikiPage->getContent( Revision::RAW )->getNativeData();
+		$formContent = PFUtils::getPageText( $formTitle, RevisionRecord::RAW );
 		$start_position = 0;
 		while ( $brackets_loc = strpos( $formContent, '{{{', $start_position ) ) {
 			$brackets_end_loc = strpos( $formContent, "}}}", $brackets_loc );

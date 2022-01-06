@@ -1,4 +1,7 @@
 <?php
+
+use MediaWiki\Linker\LinkRenderer;
+
 /**
  * Gets the form(s) used to edit a page, both for existing pages and for
  * not-yet-created, red-linked pages.
@@ -37,14 +40,17 @@ class PFFormLinker {
 			]
 		);
 
-		if ( $row = $dbr->fetchRow( $res ) ) {
+		$row = $dbr->fetchRow( $res );
+		if ( $row ) {
 			return $row['pp_value'];
 		}
 	}
 
 	public static function createPageWithForm( $title, $formName, $inQueryArr ) {
 		/** @var PFFormPrinter $wgPageFormsFormPrinter */
-		global $wgPageFormsFormPrinter;
+		global $wgPageFormsFormPrinter, $wgOut;
+
+		$wgOut->enableOOUI();
 
 		$formTitle = Title::makeTitleSafe( PF_NS_FORM, $formName );
 		$formDefinition = PFUtils::getPageText( $formTitle );
@@ -94,7 +100,7 @@ class PFFormLinker {
 	 * @param bool &$ret
 	 * @return true
 	 */
-	static function setBrokenLink( MediaWiki\Linker\LinkRenderer $linkRenderer, $target, $isKnown, &$text, &$attribs, &$ret ) {
+	static function setBrokenLink( LinkRenderer $linkRenderer, $target, $isKnown, &$text, &$attribs, &$ret ) {
 		global $wgContentNamespaces;
 		global $wgPageFormsLinkAllRedLinksToForms;
 

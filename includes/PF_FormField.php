@@ -27,8 +27,10 @@ class PFFormField {
 	private $mPossibleValues;
 	private $mUseDisplayTitle;
 	private $mIsList;
-	// The following fields are not set by the form-creation page
-	// (though they could be).
+	/**
+	 * The following fields are not set by the form-creation page
+	 * (though they could be).
+	 */
 	private $mDefaultValue;
 	private $mPreloadPage;
 	private $mHoldsTemplate;
@@ -37,11 +39,13 @@ class PFFormField {
 	private $mDescriptionArgs;
 	private $mLabel;
 	private $mLabelMsg;
-	// somewhat of a hack - these two fields are for a field in a specific
-	// representation of a form, not the form definition; ideally these
-	// should be contained in a third 'field' class, called something like
-	// PFFormInstanceField, which holds these fields plus an instance of
-	// PFFormField. Too much work?
+	/**
+	 * somewhat of a hack - these two fields are for a field in a specific
+	 * representation of a form, not the form definition; ideally these
+	 * should be contained in a third 'field' class, called something like
+	 * PFFormInstanceField, which holds these fields plus an instance of
+	 * PFFormField. Too much work?
+	 */
 	private $mInputName;
 	private $mIsDisabled;
 
@@ -239,7 +243,8 @@ class PFFormField {
 				$f->mIsList = true;
 			} elseif ( $component == 'unique' ) {
 				$f->mFieldArgs['unique'] = true;
-			} elseif ( $component == 'edittools' ) { // free text only
+			} elseif ( $component == 'edittools' ) {
+				// free text only
 				$f->mFieldArgs['edittools'] = true;
 			}
 
@@ -364,7 +369,8 @@ class PFFormField {
 					);
 				}
 			}
-		} // end for
+		}
+		// end for
 
 		if ( $valuesSourceType !== null ) {
 			$f->mPossibleValues = PFValuesUtils::getAutocompleteValues( $valuesSource, $valuesSourceType );
@@ -484,7 +490,7 @@ class PFFormField {
 			}
 		}
 
-		if ( $template_name == null || $template_name === '' ) {
+		if ( $template_name === null || $template_name === '' ) {
 			$f->mInputName = $field_name;
 		} elseif ( $template_in_form->allowsMultiple() ) {
 			// 'num' will get replaced by an actual index, either in PHP
@@ -538,7 +544,6 @@ class PFFormField {
 	function getCurrentValue( $template_instance_query_values, $form_submitted, $source_is_page, $all_instances_printed, &$val_modifier = null ) {
 		// Get the value from the request, if
 		// it's there, and if it's not an array.
-		$cur_value = null;
 		$field_name = $this->template_field->getFieldName();
 		$delimiter = $this->mFieldArgs['delimiter'];
 		$escaped_field_name = str_replace( "'", "\'", $field_name );
@@ -550,7 +555,7 @@ class PFFormField {
 			if ( isset( $template_instance_query_values[$fieldName] ) && isset( $template_instance_query_values[$fieldNameTag] ) ) {
 				$tag = $template_instance_query_values[$fieldNameTag];
 				if ( !preg_match( '/( |\n)$/', $tag ) ) {
-					$tag = $tag . "\n";
+					$tag .= "\n";
 				}
 				if ( trim( $template_instance_query_values[$fieldName] ) ) {
 					// Don't add the tag if field content has been removed.
@@ -596,7 +601,6 @@ class PFFormField {
 				if ( is_array( $field_query_val ) ) {
 					$cur_values = [];
 					if ( $map_field && $this->mPossibleValues !== null ) {
-						$cur_values = [];
 						foreach ( $field_query_val as $key => $val ) {
 							$val = trim( $val );
 							if ( $key === 'is_list' ) {
@@ -640,10 +644,6 @@ class PFFormField {
 				return str_replace( [ '<', '>' ], [ '&lt;', '&gt;' ], $str );
 
 			}
-		}
-
-		if ( !empty( $cur_value ) ) {
-			return $cur_value;
 		}
 
 		// Default values in new instances of multiple-instance
@@ -872,9 +872,15 @@ class PFFormField {
 		return $text;
 	}
 
-	// For now, HTML of an individual field depends on whether or not it's
-	// part of multiple-instance template; this may change if handling of
-	// such templates in form definitions gets more sophisticated.
+	/**
+	 * For now, HTML of an individual field depends on whether or not it's
+	 * part of multiple-instance template; this may change if handling of
+	 * such templates in form definitions gets more sophisticated.
+	 *
+	 * @param bool $part_of_multiple
+	 * @param bool $is_last_field_in_template
+	 * @return string
+	 */
 	function createMarkup( $part_of_multiple, $is_last_field_in_template ) {
 		$text = "";
 		$descPlaceholder = "";
@@ -997,7 +1003,7 @@ class PFFormField {
 	}
 
 	/**
-	 * Since Semantic Forms uses a hook system for the functions that
+	 * Since Page Forms uses a hook system for the functions that
 	 * create HTML inputs, most arguments are contained in the "$other_args"
 	 * array - create this array, using the attributes of this form
 	 * field and the template field it corresponds to, if any.

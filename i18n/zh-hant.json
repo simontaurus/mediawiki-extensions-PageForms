@@ -12,11 +12,12 @@
 			"Oapbtommy",
 			"Shirayuki",
 			"SiderealArt",
+			"Winston Sung",
 			"Wrightbus",
 			"아라"
 		]
 	},
-	"pageforms-name": "Page Forms",
+	"pageforms-name": "頁面表單（Page Forms）",
 	"pageforms-desc": "可用來建立與編輯 wiki 頁面的表單",
 	"specialpages-group-pf_group": "Page Forms",
 	"apihelp-pfautocomplete-description": "透過 Page Forms 擴充所使用的自動化功能。",
@@ -235,6 +236,8 @@
 	"pf_bad_number_error": "必須為有效的數字",
 	"pf_bad_integer_error": "必須為整數",
 	"pf_bad_date_error": "必須為有效的日期",
+	"pf_start_end_date_error": "結束日期必須晚於開始日期",
+	"pf_start_end_datetime_error": "結束日期時間必須晚於開始日期時間",
 	"pf_modified_input_error": "此變動應被允許或拒絕",
 	"pf_pipe_error": "除了在 {{...}} 或 [[...]] 以內，和特殊標籤以外，不允許使用 \"|\"",
 	"uploadwindow": "上傳視窗",

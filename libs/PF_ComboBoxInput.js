@@ -28,6 +28,7 @@
         this.setValue(element.val())
         this.config['autocompletesettings'] = element.attr('autocompletesettings');
         this.config['autocompletedatatype'] = element.attr('autocompletedatatype');
+        this.config['existingvaluesonly'] = element.attr('existingvaluesonly');
         this.setInputAttribute('autocompletesettings', this.config['autocompletesettings']);;
         this.setInputAttribute('placeholder', element.attr('placeholder'));
         this.setInputAttribute('tabIndex', element.attr('tabindex'));
@@ -45,7 +46,11 @@
         }
         // Bind the blur event to resize input according to the value
         this.$input.blur( () => {
-            this.$element.css("width", this.getValue().length * 11);
+            if ( !this.itemFound && this.config['existingvaluesonly'] ){
+                this.setValue("");
+            } else {
+                this.$element.css("width", this.getValue().length * 11);
+            }
         });
         this.$input.focus( () => {
             this.setValues();
@@ -55,6 +60,9 @@
                 this.setValues();
             }
         });
+        this.$element.mouseup( () =>{
+            this.setValues();
+        })
     };
     /**
      * Sets the values for combobox
@@ -69,6 +77,7 @@
             curValue,
             my_server,
             wgPageFormsAutocompleteOnAllChars = mw.config.get( 'wgPageFormsAutocompleteOnAllChars' );
+        this.itemFound = false;
         if (this.config.autocompletedatatype !== undefined) {
             var data_source = this.config.autocompletesettings,
                 data_type = this.config.autocompletedatatype;
@@ -101,6 +110,9 @@
                             });
                         } else {
                             for ( i = 0; i < Data.length; i++ ) {
+                                if ( Data[i].title == self.getValue() ){
+                                    self.itemFound = true;
+                                }
                                 values.push({
                                     data: Data[i].title, label: self.highlightText(Data[i].title)
                                 })
@@ -127,6 +139,9 @@
                         if (data.title !== undefined && data.title !== null) {
                             i = 0;
                             data.title.forEach(function () {
+                                if (data.title[i] == curValue ){
+                                    self.itemFound = true;
+                                }
                                 if (wgPageFormsAutocompleteOnAllChars) {
                                     if (self.getConditionForAutocompleteOnAllChars(data.title[i], curValue)) {
                                         values.push({
@@ -151,6 +166,9 @@
                     if (Array.isArray(data) || typeof data == 'object') {
                         if (wgPageFormsAutocompleteOnAllChars) {
                             for (let key in data) {
+                                if ( data[key] == curValue ) {
+                                    self.itemFound = true;
+                                }
                                 if (this.getConditionForAutocompleteOnAllChars(data[key], curValue )) {
                                     values.push({
                                         data: data[key], label: this.highlightText(data[key])
@@ -159,6 +177,9 @@
                             }
                         } else {
                             for (let key in data) {
+                                if ( data[key] == curValue ) {
+                                    self.itemFound = true;
+                                }
                                 if (this.checkIfAnyWordStartsWithInputValue(data[key], curValue)) {
                                     values.push({
                                         data: data[key], label: this.highlightText(data[key])
@@ -203,6 +224,9 @@
                             }
                             response.pfautocomplete.forEach(function (item) {
                                 curValue = self.getValue();
+                                if ( item.displaytitle == curValue || item.title == curValue ) {
+                                    self.itemFound = true;
+                                }
                                 if (wgPageFormsAutocompleteOnAllChars) {
                                     if (item.displaytitle !== undefined) {
                                         if (self.getConditionForAutocompleteOnAllChars(item.displaytitle, curValue)){

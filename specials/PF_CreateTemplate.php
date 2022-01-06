@@ -211,8 +211,8 @@ class PFCreateTemplate extends SpecialPage {
 			] );
 		}
 		$text .= "\t</td>\n";
-		$addAboveButton = Html::element( 'a', [ 'class' => "addAboveButton", 'title' => wfMessage( 'pf_createtemplate_addanotherabove' )->text() ] );
-		$removeButton = Html::element( 'a', [ 'class' => "removeButton", 'title' => wfMessage( 'pf_createtemplate_deletefield' )->text() ] );
+		$addAboveButton = Html::element( 'a', [ 'class' => "addAboveButton", 'title' => $this->msg( 'pf_createtemplate_addanotherabove' )->text() ] );
+		$removeButton = Html::element( 'a', [ 'class' => "removeButton", 'title' => $this->msg( 'pf_createtemplate_deletefield' )->text() ] );
 
 		$text .= <<<END
 			<td class="instanceAddAbove">$addAboveButton</td>
@@ -334,7 +334,7 @@ END;
 			$pfTemplate->setFormat( $template_format );
 			$full_text = $pfTemplate->createText();
 
-			$text = PFUtils::printRedirectForm( $title, $full_text, "", $save_page, $preview_page, false, false, false, null, null );
+			$text = PFUtils::printRedirectForm( $title, $full_text, "", $save_page, $this->getUser() );
 			$out->addHTML( $text );
 			return;
 		}

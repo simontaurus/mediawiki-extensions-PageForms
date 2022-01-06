@@ -97,6 +97,7 @@ class PFDatePickerInput extends PFFormInput {
 			'infusable' => true
 		] );
 		$widget = new DateInputWidget( $options );
+		$widget->setDisabled( $this->mIsDisabled );
 		$text = $widget->toString();
 
 		// We need a wrapper div so that OOUI won't override
@@ -141,6 +142,7 @@ class PFDatePickerInput extends PFFormInput {
 	private function getConvertedFormat() {
 		$oldFormat = $this->mOtherArgs['date format'];
 		$j = 0;
+		$newFormat = [];
 		for ( $i = 0; $i < strlen( $oldFormat ); $i++ ) {
 			if ( $oldFormat[$i] === "d" && isset( $oldFormat[$i + 1] ) && $oldFormat[$i + 1] !== "d" ) {
 				// If the letter is "d" and next letter is not "d"

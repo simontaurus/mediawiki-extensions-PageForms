@@ -28,7 +28,8 @@ class PFTemplateParams {
 		$wgRenderHashAppend = ';lang=' . $wgLang->getCode();
 
 		$params = func_get_args();
-		array_shift( $params ); // We don't need the parser.
+		// We don't need the parser.
+		array_shift( $params );
 
 		$fieldData = [];
 		foreach ( $params as $param ) {
@@ -39,7 +40,12 @@ class PFTemplateParams {
 		}
 
 		$parserOutput = $parser->getOutput();
-		$parserOutput->setProperty( 'PageFormsTemplateParams', serialize( $fieldData ) );
+		if ( method_exists( $parserOutput, 'setPageProperty' ) ) {
+			// MW 1.38+
+			$parserOutput->setPageProperty( 'PageFormsTemplateParams', serialize( $fieldData ) );
+		} else {
+			$parserOutput->setProperty( 'PageFormsTemplateParams', serialize( $fieldData ) );
+		}
 
 		$text = wfMessage( "pf_template_docu", $title->getText() )->escaped();
 		$text .= "<pre>\n{{" . $title->getText() . "\n";

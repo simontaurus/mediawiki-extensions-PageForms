@@ -14,11 +14,15 @@ class PFTemplateField {
 	private $mValueLabels;
 	private $mLabel;
 
-	// SMW-specific
+	/**
+	 * SMW-specific fields
+	 */
 	private $mSemanticProperty;
 	private $mPropertyType;
 
-	// Cargo-specific
+	/**
+	 * Cargo-specific fields
+	 */
 	private $mCargoTable;
 	private $mCargoField;
 	private $mFieldType;
@@ -146,13 +150,17 @@ class PFTemplateField {
 		$store = PFUtils::getSMWStore();
 		// this returns an array of objects
 		$allowed_values = PFValuesUtils::getSMWPropertyValues( $store, $proptitle, "Allows value" );
+		if ( empty( $allowed_values ) ) {
+			$allowed_values = PFValuesUtils::getSMWPropertyValues( $store, $proptitle, "Allows value list" );
+		}
 		$label_formats = PFValuesUtils::getSMWPropertyValues( $store, $proptitle, "Has field label format" );
 		$propValue = SMWDIProperty::newFromUserLabel( $this->mSemanticProperty );
 		$this->mPropertyType = $propValue->findPropertyTypeID();
 
 		foreach ( $allowed_values as $allowed_value ) {
 			// HTML-unencode each value
-			$this->mPossibleValues[] = html_entity_decode( $allowed_value );
+			$wiki_value = html_entity_decode( $allowed_value );
+			$this->mPossibleValues[] = $wiki_value;
 			if ( count( $label_formats ) > 0 ) {
 				$label_format = $label_formats[0];
 				$prop_instance = SMWDataValueFactory::findTypeID( $this->mPropertyType );
@@ -186,7 +194,7 @@ class PFTemplateField {
 	 * instead of SMW.
 	 * @param string $tableName
 	 * @param string $fieldName
-	 * @param string|null $fieldDescription
+	 * @param CargoFieldDescription|null $fieldDescription
 	 */
 	function setCargoFieldData( $tableName, $fieldName, $fieldDescription = null ) {
 		$this->mCargoTable = $tableName;
@@ -319,10 +327,6 @@ class PFTemplateField {
 		return $this->mHoldsTemplate;
 	}
 
-	function setTemplateField( $templateField ) {
-		$this->mTemplateField = $templateField;
-	}
-
 	function setLabel( $label ) {
 		$this->mLabel = $label;
 	}
@@ -335,7 +339,7 @@ class PFTemplateField {
 		$this->mFieldType = $fieldType;
 
 		if ( $fieldType == 'File' ) {
-			$this->mNamespace = MWNamespace::getCanonicalName( NS_FILE );
+			$this->mNamespace = PFUtils::getCanonicalName( NS_FILE );
 		}
 	}
 
@@ -356,9 +360,10 @@ class PFTemplateField {
 		// just for the link - but only if it's of type "Page".
 		if ( $this->mIsList && ( $fieldProperty != '' ||
 			( $cargoInUse && $this->mFieldType == 'Page' ) ) ) {
-			// Find a string that's not in the SMW property
+			// Find a string that's not in the property
 			// name, to be used as the variable.
-			$var = "x"; // default - also use this if all the attempts fail
+			// Default is "x" - also use this if all the attempts fail.
+			$var = "x";
 			if ( strstr( $fieldProperty, $var ) ) {
 				$var_options = [ 'y', 'z', 'xx', 'yy', 'zz', 'aa', 'bb', 'cc' ];
 				foreach ( $var_options as $option ) {
@@ -376,7 +381,8 @@ class PFTemplateField {
 			} else {
 				$text .= $this->mNamespace . ":$var]] {{#set:" . $fieldProperty . "=$var}} ";
 			}
-			$text .= "}}\n"; // close #arraymap call.
+			// Close #arraymap call.
+			$text .= "}}\n";
 			return $text;
 		}
 
