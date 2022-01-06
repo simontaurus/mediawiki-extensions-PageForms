@@ -120,6 +120,9 @@ class PFTree {
 		}
 	}
 
+	/**
+	 * This function fetchs the display title of an category from the database
+	 */
         private static function getDisplayTitle($title){
 		//TODO: Optimize, query all display titles at once
 		$titles = [];
