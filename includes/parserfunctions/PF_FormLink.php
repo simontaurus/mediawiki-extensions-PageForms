@@ -112,6 +112,7 @@ class PFFormLink {
 				$inQueryArr = PFUtils::arrayMergeRecursiveDistinct( $inQueryArr, $arr );
 				if ( $param_name == 'returnto' ) {
 					$hasReturnTo = true;
+                                        $inQueryArr['returnto'] = $value;
 				}
 			}
 		}
@@ -188,6 +189,15 @@ class PFFormLink {
 					if ( count( $var_and_val ) == 2 ) {
 						$hidden_inputs .= Html::hidden( urldecode( $var_and_val[0] ), urldecode( $var_and_val[1] ) );
 					}
+				}
+				//reload and returnto need to be set as post params to work properly (other option: handle them correctly as hidden fields in generated PageForm)
+				if (isset($inQueryArr['reload'])) {
+					$link_url .= ( strstr( $link_url, '?' ) ) ? '&' : '?';
+					$link_url .= "reload=" . $inQueryArr['reload'];
+				}
+				if (isset($inQueryArr['returnto'])) {
+					$link_url .= ( strstr( $link_url, '?' ) ) ? '&' : '?';
+					$link_url .= "returnto=" . $inQueryArr['returnto'];
 				}
 			} else {
 				$link_url .= ( strstr( $link_url, '?' ) ) ? '&' : '?';
