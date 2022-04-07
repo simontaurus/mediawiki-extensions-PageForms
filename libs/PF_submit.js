@@ -123,25 +123,36 @@
 		if  ( mw.config.get( 'wgAction' ) === 'formedit' ) {
 			params += '&target=' + encodeURIComponent( mw.config.get( 'wgPageName' ) );
 		} else if ( mw.config.get( 'wgCanonicalSpecialPageName' ) === 'FormEdit' ) {
-			var url = mw.config.get( 'wgPageName' );
 
-			var start = url.indexOf( '/' ) + 1; // find start of subpage
-			var stop;
+			//Special:FormEdit can be used with url params or path componentes. check url params first
+			//could also use new URLSearchParams(window.location.search).get();
+			var form_value = mw.util.getParamValue('form');
+ 			var target_value =  mw.util.getParamValue('target');
+			if (form_value != null && target_value != null){
+				params += '&form=' + form_value;
+				params += '&target=' + target_value;
+			} 
+			else {
+				var url = mw.config.get( 'wgPageName' );
 
-			if ( start >= 0 ) {
-				stop = url.indexOf( '/', start ); // find end of first subpage
-			} else {
-				stop = -1;
-			}
+				var start = url.indexOf( '/' ) + 1; // find start of subpage
+				var stop;
 
-			if ( stop >= 0 ) {
-				params += '&form=' + encodeURIComponent( url.substring( start, stop ) );
+				if ( start >= 0 ) {
+					stop = url.indexOf( '/', start ); // find end of first subpage
+				} else {
+					stop = -1;
+				}
 
-				start = stop + 1;
-				params += '&target=' + encodeURIComponent( url.substr( start ) );
+				if ( stop >= 0 ) {
+					params += '&form=' + encodeURIComponent( url.substring( start, stop ) );
 
-			} else {
-				params += '&form=' + encodeURIComponent( url.substr( start ) );
+					start = stop + 1;
+					params += '&target=' + encodeURIComponent( url.substr( start ) );
+
+				} else {
+					params += '&form=' + encodeURIComponent( url.substr( start ) );
+				}
 			}
 		}
 
