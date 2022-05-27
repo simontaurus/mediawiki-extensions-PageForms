@@ -19,8 +19,9 @@
  */
 window.PF_DTFP_init = function( inputID, params ) { // minTime, maxTime, interval, format
 
-	var value = new Date();
-	if (params.currValue !== "") value = new Date(params.currValue);
+	var value = "";
+	if (params.currValue === "now") value = new Date();
+	else if (params.currValue !== "") value = new Date(params.currValue);
 						      				      
 	var minDate = "";
 	if (params.minTime !== "") minDate = new Date(params.minTime);
@@ -32,10 +33,14 @@ window.PF_DTFP_init = function( inputID, params ) { // minTime, maxTime, interva
 	
 	var increment = params.interval;
 	if (increment === "") increment = 5;
+	
+	var time_24hr = true;
+	if (params.time_24hr === "false") time_24hr = false;
 
 	flatpickr("#" + inputID, {
 			defaultDate: value,
 			enableTime: true,
+			time_24hr: time_24hr,
 			dateFormat: format,
 		  	minDate: minDate,
   			manDate: maxDate,
