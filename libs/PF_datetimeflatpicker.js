@@ -18,13 +18,22 @@
  *		format: (String) display format string 
  */
 
-//fetch user lang
-fetch(mw.config.get('wgScriptPath') + "/api.php?action=query&meta=userinfo&uiprop=options&format=json")
-	.then(function(response){return response.json();})
-	.then(function(response) { flatpickr.localize(flatpickr.l10ns[response.query.userinfo.options.language]); })
-	.catch(function(error){console.log(error);});
-
 window.PF_DTFP_init = function( inputID, params ) { // minTime, maxTime, interval, format
+	//fetch user lang
+	fetch(mw.config.get('wgScriptPath') + "/api.php?action=query&meta=userinfo&uiprop=options&format=json")
+		.then(function(response){return response.json();})
+		.then(function(response) { 
+			params.lang = response.query.userinfo.options.language;
+			flatpickr.localize(flatpickr.l10ns[params.lang]);
+			PF_DTFP_load(inputID, params);
+		})
+		.catch(function(error){
+			console.log(error);
+			PF_DTFP_load(inputID, params);
+		});
+};
+
+window.PF_DTFP_load = function( inputID, params ) { // minTime, maxTime, interval, format
 	
 	var value = "";
 	if (params.currValue === "now") value = new Date();
