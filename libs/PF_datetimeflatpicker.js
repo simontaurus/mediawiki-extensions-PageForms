@@ -48,6 +48,7 @@ window.PF_DTFP_init = function( inputID, params ) { // minTime, maxTime, interva
 			onChange: function(selectedDates) {
 				var selectedDate = new Date(selectedDates[0]).toISOString();
 				console.log(selectedDate);
+				$('#' + inputID).attr("value", selectedDate);
 	  	}
 	});
 
