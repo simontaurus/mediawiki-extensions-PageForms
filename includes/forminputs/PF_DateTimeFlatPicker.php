@@ -42,14 +42,14 @@ class PFDateTimeFlatPicker extends PFFormInput {
 	protected function setupJsInitAttribs() {
 
 		// set min time if valid, else use default
-		if ( array_key_exists( 'mintime', $this->mOtherArgs ) {
+		if ( array_key_exists( 'mintime', $this->mOtherArgs ) ) {
 			$minTime = trim( $this->mOtherArgs['mintime'] );
 		} else {
 			$minTime = '';
 		}
 
 		// set max time if valid, else use default
-		if ( array_key_exists( 'maxtime', $this->mOtherArgs ) {
+		if ( array_key_exists( 'maxtime', $this->mOtherArgs ) ) {
 			$maxTime = trim( $this->mOtherArgs['maxtime'] );
 		} else {
 			$maxTime = '';
@@ -90,7 +90,7 @@ class PFDateTimeFlatPicker extends PFFormInput {
 		$value = $this->mCurrentValue;
 		$class = array_key_exists( 'class', $this->mOtherArgs ) ? 'pfFlatPicker ' . $this->mOtherArgs['class'] : 'pfFlatPicker';
     
-		$text = '<input id="$id" class="$class" type="text" placeholder="Select Date.." value="$value" >';
+		$text = "<input id='{$id}' class='{$class}' type='text' placeholder='Select Date..' value='{$value}' >";
 
 		$wrapperClass = 'pfFlatPickerWrapper';
 		if ( isset( $this->mOtherArgs[ 'mandatory' ] ) ) {
