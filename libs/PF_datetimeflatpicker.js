@@ -17,8 +17,15 @@
  *		interval: (String) the interval between selectable times in minutes
  *		format: (String) display format string 
  */
-window.PF_DTFP_init = function( inputID, params ) { // minTime, maxTime, interval, format
 
+//fetch user lang
+fetch(mw.config.get('wgScriptPath') + "/api.php?action=query&meta=userinfo&uiprop=options&format=json")
+	.then(function(response){return response.json();})
+	.then(function(response) { flatpickr.localize(flatpickr.l10ns[response.query.userinfo.options.language]); })
+	.catch(function(error){console.log(error);});
+
+window.PF_DTFP_init = function( inputID, params ) { // minTime, maxTime, interval, format
+	
 	var value = "";
 	if (params.currValue === "now") value = new Date();
 	else if (params.currValue && params.currValue !== "") value = new Date(params.currValue); //not null and not empty
@@ -52,6 +59,7 @@ window.PF_DTFP_init = function( inputID, params ) { // minTime, maxTime, interva
   			manDate: maxDate,
   			minuteIncrement: increment,
 			allowInput: true,
+			locale: "ru",
 			onChange: function(selectedDates) {
 				var selectedDate = new Date(selectedDates[0]).toISOString();
 				$('#' + inputID).attr("value", selectedDate);
