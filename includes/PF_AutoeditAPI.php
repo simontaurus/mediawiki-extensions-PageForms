@@ -562,8 +562,16 @@ class PFAutoeditAPI extends ApiBase {
 					$returntoPage = WikiPage::factory( $returnto );
 					if ( $returntoPage && $returntoPage->exists() && $reload ) {
 						$returntoPage->doPurge();
+						//$revisionRecord = $returntoPage->getRevisionRecord();
+						//$returntoPage->doEditUpdates($revisionRecord, $this->getUser());
+						//$updater = $returntoPage->newPageUpdater( $this->getUser() );
+						//$parent = $updater->grabParentRevision();
+						//$content = $parent->getContent( SlotRecord::MAIN );//->replaceSection( $section, $sectionContent );
+						//$updater->setContent( SlotRecord::MAIN, $content );
+						//$newRev = $updater->saveRevision( "purge-edit", EDIT_UPDATE );
+//						$returntoPage->doPurge();
 					}
-					$redirect = $returnto->getFullURL();
+					$redirect = $returnto->getFullURL();// . '?action=purge';
 				}
 
 				$this->getOutput()->redirect( $redirect );
