@@ -60,6 +60,7 @@ class PFFormPrinter {
 		$this->registerInputType( 'PFEndDateInput' );
 		$this->registerInputType( 'PFDatePickerInput' );
 		$this->registerInputType( 'PFDateTimePicker' );
+		$this->registerInputType( 'PFDateTimeFlatPicker' );
 		$this->registerInputType( 'PFDateTimeInput' );
 		$this->registerInputType( 'PFStartDateTimeInput' );
 		$this->registerInputType( 'PFEndDateTimeInput' );
