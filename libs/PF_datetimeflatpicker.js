@@ -22,6 +22,8 @@ window.PF_DTFP_init = function( inputID, params ) { // minTime, maxTime, interva
 	var value = "";
 	if (params.currValue === "now") value = new Date();
 	else if (params.currValue !== "") value = new Date(params.currValue);
+	
+	if (value != "") $('#' + inputID).attr("value", value);
 						      				      
 	var minDate = "";
 	if (params.minTime !== "") minDate = new Date(params.minTime);
