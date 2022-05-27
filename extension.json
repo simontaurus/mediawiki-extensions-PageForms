@@ -144,6 +144,7 @@
 		"PFDatePickerInput": "includes/forminputs/PF_DatePickerInput.php",
 		"PFTimePickerInput": "includes/forminputs/PF_TimePickerInput.php",
 		"PFDateTimePicker": "includes/forminputs/PF_DateTimePicker.php",
+		"PFDateTimeFlatPicker": "includes/forminputs/PF_DateTimeFlatPicker.php",
 		"PFDateTimeInput": "includes/forminputs/PF_DateTimeInput.php",
 		"PFStartDateTimeInput": "includes/forminputs/PF_StartDateTimeInput.php",
 		"PFEndDateTimeInput": "includes/forminputs/PF_EndDateTimeInput.php",
@@ -303,6 +304,16 @@
 			"scripts": "libs/PF_datetimepicker.js",
 			"dependencies": [
 				"mediawiki.widgets.datetime"
+			]
+		},
+		"ext.pageforms.datetimeflatpicker": {
+			"scripts": [
+				"libs/flatpickr.js",
+				"libs/flatpickr-i10n.js",
+				"libs/PF_datetimeflatpicker.js"
+			],
+			"styles": [
+				"skins/flatpickr.css"
 			]
 		},
 		"ext.pageforms.regexp": {
