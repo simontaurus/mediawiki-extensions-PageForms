@@ -21,13 +21,14 @@
 window.PF_DTFP_init = function( inputID, params ) { // minTime, maxTime, interval, format
 	
 	var value = "";
-	if (params.currValue === "now") value = new Date();
-	else if (params.currValue && params.currValue !== "") value = new Date(params.currValue); //not null and not empty
+	if (params.currValue === "now") value = new Date(); //replace 'now' with current datetime
+	else if (params.currValue && params.currValue !== "") value = new Date(params.currValue); //parse value if not null and not empty
 	
 	if (value !== "") { 
-		$('#' + inputID).attr("value", value.toISOString());
+		$('#' + inputID).attr("value", value.toISOString()); //set default / loaded value
 	}
-						      				      
+
+	//get config params
 	var minDate = "";
 	if (params.minTime !== "") minDate = new Date(params.minTime);
 	var maxDate = "";
@@ -48,16 +49,14 @@ window.PF_DTFP_init = function( inputID, params ) { // minTime, maxTime, interva
 			defaultMinute: new Date().getMinutes(),
 			enableTime: true,
 			time_24hr: time_24hr,
-			dateFormat: format,
-		  	minDate: minDate,
+			dateFormat: "Z", //submit format, Z=ISOString
+			altFormat: format, //display format
+			altInput: true, //allows custom display format
+		  	minDate: minDate, //selection range
   			manDate: maxDate,
   			minuteIncrement: increment,
 			allowInput: true,
-			locale: mw.config.get('wgUserLanguage'),
-			onChange: function(selectedDates) {
-				var selectedDate = new Date(selectedDates[0]).toISOString();
-				$('#' + inputID).attr("value", selectedDate);
-	  	}
+			locale: mw.config.get('wgUserLanguage')
 	});
 
 };
