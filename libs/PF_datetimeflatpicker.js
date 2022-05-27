@@ -21,9 +21,11 @@ window.PF_DTFP_init = function( inputID, params ) { // minTime, maxTime, interva
 
 	var value = "";
 	if (params.currValue === "now") value = new Date();
-	else if (params.currValue !== "") value = new Date(params.currValue);
+	else if (params.currValue && params.currValue !== "") value = new Date(params.currValue); //not null and not empty
 	
-	if (value != "") $('#' + inputID).attr("value", value);
+	if (value !== "") { 
+		$('#' + inputID).attr("value", value.toISOString());
+	}
 						      				      
 	var minDate = "";
 	if (params.minTime !== "") minDate = new Date(params.minTime);
@@ -41,15 +43,17 @@ window.PF_DTFP_init = function( inputID, params ) { // minTime, maxTime, interva
 
 	flatpickr("#" + inputID, {
 			defaultDate: value,
+			defaultHour: new Date().getHours(),
+			defaultMinute: new Date().getMinutes(),
 			enableTime: true,
 			time_24hr: time_24hr,
 			dateFormat: format,
 		  	minDate: minDate,
   			manDate: maxDate,
   			minuteIncrement: increment,
+			allowInput: true,
 			onChange: function(selectedDates) {
 				var selectedDate = new Date(selectedDates[0]).toISOString();
-				console.log(selectedDate);
 				$('#' + inputID).attr("value", selectedDate);
 	  	}
 	});
