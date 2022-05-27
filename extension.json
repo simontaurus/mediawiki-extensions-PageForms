@@ -308,7 +308,7 @@
 		},
 		"ext.pageforms.datetimeflatpicker": {
 			"scripts": [
-				"libs/flatpickr.js,
+				"libs/flatpickr.js",
 				"libs/PF_datetimeflatpicker.js"
 			],
 			"styles": [
