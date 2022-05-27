@@ -95,10 +95,9 @@ class PFDateTimeFlatPicker extends PFFormInput {
 		$name = $this->mInputName;
 		$id = 'input_' . $this->mInputNumber;
 		$value = $this->mCurrentValue;
-		$class = array_key_exists( 'class', $this->mOtherArgs ) ? 'pfFlatPicker ' . $this->mOtherArgs['class'] : 'pfFlatPicker';
+		$class = array_key_exists( 'class', $this->mOtherArgs ) ? 'createboxInput pfFlatPicker ' . $this->mOtherArgs['class'] : 'pfFlatPicker';
     
-		$text = "<input id='{$id}_ui' name='{$name}' class='{$class}' type='text' placeholder='Select Date..' value='{$value}' >";
-		//$text += "\n<input id='{$id}' name='{$name}' style='display:none' class='{$class}' type='text' value='{$value}' >";
+		$text = "<input id='{$id}' name='{$name}' class='{$class}' type='text' placeholder='Select Date..' value='{$value}' >";
 
 		$wrapperClass = 'pfFlatPickerWrapper';
 		if ( isset( $this->mOtherArgs[ 'mandatory' ] ) ) {
