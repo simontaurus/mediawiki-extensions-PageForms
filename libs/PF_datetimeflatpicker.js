@@ -49,6 +49,7 @@ window.PF_DTFP_init = function( inputID, params ) { // minTime, maxTime, interva
 			defaultMinute: new Date().getMinutes(),
 			enableTime: true,
 			time_24hr: time_24hr,
+			weekNumbers: true,
 			dateFormat: "Z", //submit format, Z=ISOString
 			altFormat: format, //display format
 			altInput: true, //allows custom display format
