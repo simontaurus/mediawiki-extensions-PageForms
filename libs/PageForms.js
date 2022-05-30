@@ -1086,6 +1086,11 @@ $.fn.possiblyMinimizeAllOpenInstances = function() {
 				// Special handling for VisualEditor/VEForAll textareas.
 				curVal = $(this).text();
 			}
+			if ( $(this).is("select") ) {
+				// Special handling for select inputs with labels for each value (e. g. display title)
+				curVal = $(this).find('option:selected').attr('label');
+				if (typeof curVal === 'undefined' || curVal === false) curVal = $(this).find('option:selected').text();
+			}
 			if ( typeof curVal !== 'string' || curVal === '' ) {
 				return;
 			}
