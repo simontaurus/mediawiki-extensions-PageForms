@@ -1022,6 +1022,7 @@ window.validateAll = function () {
 	}
 
 	if (num_errors > 0) {
+		$( '#pfForm' ).data("submitted", false); //reset submitted flag, see PF_submit.js
 		// add error header, if it's not there already
 		if ($("#form_error_header").size() === 0) {
 			$("#contentSub").append('<div id="form_error_header" class="errorbox" style="font-size: medium"><img src="' + mw.config.get( 'wgPageFormsScriptPath' ) + '/skins/MW-Icon-AlertMark.png" />&nbsp;' + mw.message( 'pf_formerrors_header' ).escaped() + '</div><br clear="both" />');
