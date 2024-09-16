@@ -1554,7 +1554,7 @@ $.fn.initializeJSElements = function( partOfMultiple ) {
 		// Forms classes that require special JS handling.
 		this.find('.mw-collapsible').makeCollapsible();
 	} else {
-		this.find('.pfFancyBox').not('multipleTemplateWrapper .pfFancyBox').fancybox(fancyBoxSettings);
+		this.find('.pfFancyBox').not('.multipleTemplateWrapper .pfFancyBox').fancybox(fancyBoxSettings);
 		this.find('.autoGrow').not('.multipleTemplateWrapper .autoGrow').autoGrow();
 		this.find(".pfRating").not(".multipleTemplateWrapper .pfRating").each( function() {
 			$(this).applyRatingInput();
